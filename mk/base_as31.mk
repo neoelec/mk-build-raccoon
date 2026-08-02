@@ -1,34 +1,38 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-BASE_AS31_MK_FILE	:= $(realpath $(lastword $(MAKEFILE_LIST)))
-BASE_AS31_MK_DIR	:= $(shell dirname $(BASE_AS31_MK_FILE))
+BASE_AS31_MK_FILE	:= $(abspath $(lastword $(MAKEFILE_LIST)))
+BASE_AS31_MK_DIR	:= $(patsubst %/,%,$(dir $(BASE_AS31_MK_FILE)))
 
 # Target file name
 TARGET			?=
-
-# Define output file
-OUTPUT			?= $(addprefix $(BINDIR)/, $(TARGET))
 
 # Output directories
 BINDIR			?= bin
 OBJDIR			?= obj
 
+# Define output file
+OUTPUT			?= $(addprefix $(BINDIR)/, $(TARGET))
+
 # Source extension names
-EXT_AS			+= asm s S
+EXT_AS			?= asm s S
 
 # VPATH variable
-VPATH			+=
+VPATH			?=
 
 # Define all Assembler source files.
-ASRCS			+=
+ASRCS			?=
 
 # Assembler Options
 ASFLAGS			+= -Fhex
 ASFLAGS			+= -l
 
 # Define programs and commands.
+ifeq ($(origin AS),default)
 AS			:= as31
+endif
+AS			?= as31
+
 REMOVE			:= rm -rf
 COPY			:= cp
 
@@ -44,7 +48,7 @@ ALL_ASFLAGS		:= $(ASFLAGS)
 
 all: build
 
-build: as31version $(BINDIR) $(OBJDIR) output
+build: as31version output
 
 $(BINDIR) $(OBJDIR):
 	@mkdir -p $@
@@ -61,8 +65,9 @@ AOBJS			+= $$(AOBJS_$(1))
 $$(AOBJS_$(1)): $(OBJDIR)/%.ihx: %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_ASSEMBLING) $$<
+	@mkdir -p $$(dir $$@)
 	$(AS) $(ALL_ASFLAGS) -O$$@ $$<
-	@if [ -e $$(<:.asm=.lst) ]; then mv $$(<:.asm=.lst) $(OBJDIR)/; fi
+	@if [ -f $$(patsubst %.$(1),%.lst,$$<) ]; then mv $$(patsubst %.$(1),%.lst,$$<) $$(dir $$@); fi
 endef
 
 $(foreach EXT, $(EXT_AS), $(eval $(call RULES_AS,$(EXT))))
@@ -71,8 +76,8 @@ HEX_FILE		:= $(OUTPUT).hex
 
 $(HEX_FILE): $(AOBJS) | $(BINDIR)
 	@echo
-	@echo $(MSG_LINKING)
-	srec_cat `echo -n "$^ " | sed -e 's/.ihx/.ihx -Intel/g'` -o $@ -Intel
+	@echo $(MSG_LINKING) $@
+	srec_cat $(patsubst %.ihx,%.ihx -Intel,$^) -o $@ -Intel
 
 output: hex
 
@@ -88,6 +93,6 @@ clean_list:
 	$(REMOVE) $(OBJDIR)
 
 # Listing of phony targets.
-.PHONY : all a31-version \
-		build \
+.PHONY: all as31version \
+		build hex output \
 		clean clean_list
