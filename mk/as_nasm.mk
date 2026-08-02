@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-AS_NASM_FILE		:= $(realpath $(lastword $(MAKEFILE_LIST)))
-AS_NASM_DIR		:= $(shell dirname $(AS_NASM_FILE))
+AS_NASM_FILE		:= $(abspath $(lastword $(MAKEFILE_LIST)))
+AS_NASM_DIR		:= $(patsubst %/,%,$(dir $(AS_NASM_FILE)))
 
 # select output file format
 #  bin                  Flat raw binary (MS-DOS, embedded, ...) [default]
@@ -55,7 +55,10 @@ NASMFLAGS		+= -f $(NASMFMT)
 NASMFLAGS		+= -O$(NASMOPT) -Ov
 NASMFLAGS		+= $(patsubst %,-I%,$(EXTRAINCDIRS))
 
+ifeq ($(origin NASM),default)
 NASM			:= nasm
+endif
+NASM			?= nasm
 
 ALL_NASMFLAGS		:= $(NASMFLAGS)
 
@@ -63,7 +66,7 @@ sizebefore: | nasmversion
 
 # Display assembler version information.
 nasmversion:
-	@$(NASM) --v
+	@$(NASM) -v
 
 # Assemble: create object files from assembler source files
 define RULES_NASM
@@ -72,8 +75,11 @@ AOBJS_$(1)		:= $(addprefix $(OBJDIR)/,\
 AOBJS			+= $$(AOBJS_$(1))
 $$(AOBJS_$(1)): $(OBJDIR)/%.o : %.$(1) | $(OBJDIR)
 	@echo
-	@echo $(MSG_COMPILING) $$<
+	@echo $(MSG_ASSEMBLING) $$<
+	@mkdir -p $$(dir $$@)
 	$(NASM) $(ALL_NASMFLAGS) -l $$(@:.o=.lst) -o $$@ $$<
 endef
 
 $(foreach EXT, $(EXT_AS), $(eval $(call RULES_NASM,$(EXT))))
+
+.PHONY: nasmversion
