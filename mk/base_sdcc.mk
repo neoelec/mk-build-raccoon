@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-BASE_SDCC_MK_FILE	:= $(realpath $(lastword $(MAKEFILE_LIST)))
-BASE_SDCC_MK_DIR	:= $(shell dirname $(BASE_SDCC_MK_FILE))
+BASE_SDCC_MK_FILE	:= $(abspath $(lastword $(MAKEFILE_LIST)))
+BASE_SDCC_MK_DIR	:= $(patsubst %/,%,$(dir $(BASE_SDCC_MK_FILE)))
 
 # MCU name.
 #   mcs51   : the Intel MCS51 family of processors
@@ -61,7 +61,7 @@ OPT			?= code-size
 #   sdcc89 : ISO C90 (aka ANSI C89) standard with SDCC extensions
 #   sdcc99 : ISO C99 standard with SDCC extensions
 #   sdcc11 : ISO C11 standard with SDCC extensions (default)
-#   sdcc11 : ISO C17 standard with SDCC extensions
+#   sdcc17 : ISO C17 standard with SDCC extensions
 #   sdcc23 : ISO C23 standard with SDCC extensions
 CSTANDARD		?= sdcc11
 
@@ -87,23 +87,23 @@ ASMCU_pic16		:=
 ASMCU_mos6502		:= 6500
 
 # Source extension names
-EXT_CC			+= c
-EXT_AS			+= asm s S
+EXT_CC			?= c
+EXT_AS			?= asm s S
 
 # VPATH variable
-VPATH			+=
+VPATH			?=
 
-# Define all C sorce files.
-CSRCS			+=
+# Define all C source files.
+CSRCS			?=
 
 # Define all Assembler source files.
-ASRCS			+=
+ASRCS			?=
 
 # List any extra directories to look for include files here.
-EXTRAINCDIRS		+=
+EXTRAINCDIRS		?=
 
 # Place -I options here
-CINCS			+=
+CINCS			?=
 
 # Place -D or -U options here
 CDEFS			+= -DF_CPU=$(F_CPU)UL
@@ -133,8 +133,16 @@ LDFLAGS			+= $(CODE_LOC)
 LDFLAGS			+= --verbose
 
 # Define programs and commands.
+ifeq ($(origin CC),default)
 CC			:= sdcc
+endif
+CC			?= sdcc
+
+ifeq ($(origin AS),default)
 AS			:= sdas$(ASMCU_$(MCU))
+endif
+AS			?= sdas$(ASMCU_$(MCU))
+
 REMOVE			:= rm -rf
 COPY			:= cp
 
@@ -155,7 +163,7 @@ ALL_ASFLAGS		:= $(ASFLAGS)
 # Default target.
 all: build
 
-build: sdccversion sizebefore $(BINDIR) $(OBJDIR) output sizeafter
+build: sdccversion sizebefore output sizeafter
 
 $(BINDIR) $(OBJDIR):
 	@mkdir -p $@
@@ -168,6 +176,9 @@ sizebefore: | sdccversion
 		cat $(OUTPUT).mem; \
 		echo; \
 	fi
+
+# Ensure sizebefore finishes before output compilation/linking starts in parallel builds (-j)
+output: | sizebefore
 
 sizeafter: | output
 	@if [ -f $(OUTPUT).mem ]; then \
@@ -188,6 +199,7 @@ COBJS			+= $$(COBJS_$(1))
 $$(COBJS_$(1)): $(OBJDIR)/%.rel: %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_COMPILING) $$<
+	@mkdir -p $$(dir $$@)
 	$(CC) -c $(ALL_CFLAGS) -o $$@ $$<
 endef
 
@@ -201,6 +213,7 @@ AOBJS			+= $$(AOBJS_$(1))
 $$(AOBJS_$(1)): $(OBJDIR)/%.rel: %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_ASSEMBLING) $$<
+	@mkdir -p $$(dir $$@)
 	$(AS) $(ALL_ASFLAGS) -o $$@ $$<
 endef
 
@@ -219,7 +232,8 @@ DEBUG_SYMBOL		:= $(CDB_FILE)
 	srec_cat $< -Intel -o $@ -Intel
 
 $(IHX_FILE): $(COBJS) $(AOBJS) | $(BINDIR)
-	@echo $(MSG_LINKING)
+	@echo
+	@echo $(MSG_LINKING) $@
 	$(CC) $(LDFLAGS) -o $@ $^
 
 output: hex
@@ -236,6 +250,6 @@ clean_list:
 	$(REMOVE) $(OBJDIR)
 
 # Listing of phony targets.
-.PHONY : all sizebefore sizeafter sdccversion \
-		build \
+.PHONY: all sizebefore sizeafter sdccversion \
+		build hex output \
 		clean clean_list
