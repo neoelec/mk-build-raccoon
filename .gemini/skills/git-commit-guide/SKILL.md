@@ -69,17 +69,17 @@ A standardized commit message consists of a **Header**, an optional **Body**, an
 
 ### Feature Addition (`feat`)
 ```bash
-git commit -m "feat(skiplist): implement lock-free skip list insertion"
+git commit -s -m "feat(skiplist): implement lock-free skip list insertion"
 ```
 
 ### Bug Fix (`fix`)
 ```bash
-git commit -m "fix(bptree): prevent off-by-one error during node split"
+git commit -s -m "fix(bptree): prevent off-by-one error during node split"
 ```
 
 ### Refactoring (`refactor`)
 ```bash
-git commit -m "refactor(base_cc): eliminate parse-time subshell invocations"
+git commit -s -m "refactor(base_cc): eliminate parse-time subshell invocations"
 ```
 
 ### Multi-Line Detailed Commit (Header + Body + Footer)
@@ -105,12 +105,12 @@ BREAKING CHANGE: login(username, password) signature replaced by login(credentia
 
 ### Documentation & Skills (`docs`)
 ```bash
-git commit -m "docs(skills): add conventional commit guide skill"
+git commit -s -m "docs(skills): add conventional commit guide skill"
 ```
 
 ### Test Updates (`test`)
 ```bash
-git commit -m "test(rbtree): add boundary unit tests for tree deletion"
+git commit -s -m "test(rbtree): add boundary unit tests for tree deletion"
 ```
 
 ---
