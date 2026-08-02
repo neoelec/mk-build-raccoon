@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2025 YOUNGJIN JOO (neoelec@gmail.com)
 
-MODE=${1}
-DEBUG_SYMBOL=${2}
+set -euo pipefail
+
+MODE="${1:-native}"
+DEBUG_SYMBOL="${2:-}"
 
 cat <<EOF
 B::
