@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: MIT
 # Copyright (c) 2026 YOUNGJIN JOO (neoelec@gmail.com)
 
 ifndef _MK_UTILS_MK_

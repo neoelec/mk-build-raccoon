@@ -4,7 +4,7 @@
 [![Architecture Pattern](https://img.shields.io/badge/Architecture-Kbuild%20%26%20ChibiOS%20Pattern-00979D.svg)](https://github.com/neoelec/mk-build-raccoon)
 [![Target Platforms](https://img.shields.io/badge/Platforms-STM32%20%7C%20AT91%20%7C%20AVR%20%7C%208051%20%7C%20x86%20%7C%20Native-orange.svg)](https://github.com/neoelec/mk-build-raccoon)
 [![Toolchains](https://img.shields.io/badge/Toolchains-GCC%20%7C%20Clang%2FLLVM%20%7C%20SDCC%20%7C%20Rust%20%7C%20NASM-purple.svg)](https://github.com/neoelec/mk-build-raccoon)
-[![License: GPL-2.0+](https://img.shields.io/badge/License-GPL--2.0%2B-green.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 **`mk-build-raccoon`** is a modular, high-performance GNU Make build framework and cross-compilation toolkit designed for embedded firmware, bare-metal kernels, and native applications. Providing a clean, declarative component interface inspired by **Kbuild** and **ChibiOS**, it delivers zero-dependency modularity, automatic order-preserving deduplication, instant compilation pipeline configuration, and comprehensive debugger integration (GDB, OpenOCD, Segger J-Link, AVRDUDE, Bochs, and Lauterbach TRACE32).
 
@@ -369,5 +369,5 @@ mk-build-raccoon/
 
 ## 📄 License
 
-This project is licensed under the **GNU General Public License v2.0 or later (GPL-2.0+)**.  
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.  
 Copyright (c) 2024–2026 **YOUNGJIN JOO** ([neoelec@gmail.com](mailto:neoelec@gmail.com)).

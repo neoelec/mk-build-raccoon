@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: MIT
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
 OPENOCD_CFG		:= $(shell find $(ARDUINO_DIR) -name 'openocd.cfg' |\

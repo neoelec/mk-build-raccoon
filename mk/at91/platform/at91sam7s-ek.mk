@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: GPL-2.0+
+# SPDX-License-Identifier: MIT
 # Copyright (c) 2025 YOUNGJIN JOO (neoelec@gmail.com)
 
 CHIP			:= at91sam7s256
