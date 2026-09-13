@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-JLINK_MK_FILE		:= $(realpath $(lastword $(MAKEFILE_LIST)))
-JLINK_MK_DIR		:= $(shell dirname $(JLINK_MK_FILE))
+JLINK_MK_FILE		:= $(abspath $(lastword $(MAKEFILE_LIST)))
+JLINK_MK_DIR		:= $(patsubst %/,%,$(dir $(JLINK_MK_FILE)))
 
 JLINK_DIR		:= /opt/SEGGER/JLink
 

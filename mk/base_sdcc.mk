@@ -4,6 +4,8 @@
 BASE_SDCC_MK_FILE	:= $(abspath $(lastword $(MAKEFILE_LIST)))
 BASE_SDCC_MK_DIR	:= $(patsubst %/,%,$(dir $(BASE_SDCC_MK_FILE)))
 
+include $(BASE_SDCC_MK_DIR)/utils.mk
+
 # MCU name.
 #   mcs51   : the Intel MCS51 family of processors
 #   ds390   : the Dallas DS80C390 processor
@@ -99,7 +101,8 @@ CSRCS			?=
 # Define all Assembler source files.
 ASRCS			?=
 
-# List any extra directories to look for include files here.
+# List include directories here (ChibiOS / Kbuild style: INCDIRS and EXTRAINCDIRS supported).
+INCDIRS			?=
 EXTRAINCDIRS		?=
 
 # Place -I options here
@@ -108,13 +111,20 @@ CINCS			?=
 # Place -D or -U options here
 CDEFS			+= -DF_CPU=$(F_CPU)UL
 
+# Deduplicate include directories and source files (preserving order)
+ALL_INCDIRS		:= $(call uniq,$(INCDIRS) $(EXTRAINCDIRS))
+ALL_INCLUDES		:= $(patsubst %,-I%,$(ALL_INCDIRS))
+CSRCS			:= $(call uniq,$(CSRCS))
+ASRCS			:= $(call uniq,$(ASRCS))
+VPATH			:= $(call uniq,$(VPATH))
+
 # Compiler Options
 CPPFLAGS		+= $(CDEFS)
 CPPFLAGS		+= -m$(MCU)
 CPPFLAGS		+= --opt-$(OPT)
 CPPFLAGS		+= --debug
 CPPFLAGS		+= $(CINCS)
-CPPFLAGS		+= $(patsubst %,-I%,$(EXTRAINCDIRS))
+CPPFLAGS		+= $(ALL_INCLUDES)
 CPPFLAGS		+= --verbose
 
 CFLAGS			+= --std-$(CSTANDARD)
@@ -122,7 +132,7 @@ CFLAGS			+= --std-$(CSTANDARD)
 # Assembler Options
 ASFLAGS			+= -x -l -s
 ASFLAGS			+= -j -y
-ASFLAGS			+= $(patsubst %,-I%,$(EXTRAINCDIRS))
+ASFLAGS			+= $(ALL_INCLUDES)
 
 # Linker Options
 LDFLAGS			+= --out-fmt-ihx
@@ -160,6 +170,13 @@ MSG_CLEANING		:= Cleaning project:
 ALL_CFLAGS		:= $(CPPFLAGS) $(CFLAGS)
 ALL_ASFLAGS		:= $(ASFLAGS)
 
+# Validate mandatory TARGET variable (except for clean targets)
+ifeq ($(filter clean% %clean,$(MAKECMDGOALS)),)
+  ifeq ($(strip $(TARGET)),)
+    $(call assert-not-empty,TARGET,Target name without extension)
+  endif
+endif
+
 # Default target.
 all: build
 
@@ -189,7 +206,7 @@ sizeafter: | output
 	fi
 
 sdccversion:
-	$(CC) --version
+	@$(CC) --version
 
 # Compile: create object files from C source files.
 define RULES_CC
@@ -200,7 +217,7 @@ $$(COBJS_$(1)): $(OBJDIR)/%.rel: %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_COMPILING) $$<
 	@mkdir -p $$(dir $$@)
-	$(CC) -c $(ALL_CFLAGS) -o $$@ $$<
+	$(Q)$(CC) -c $(ALL_CFLAGS) -o $$@ $$<
 endef
 
 $(foreach EXT, $(EXT_CC), $(eval $(call RULES_CC,$(EXT))))
@@ -214,7 +231,7 @@ $$(AOBJS_$(1)): $(OBJDIR)/%.rel: %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_ASSEMBLING) $$<
 	@mkdir -p $$(dir $$@)
-	$(AS) $(ALL_ASFLAGS) -o $$@ $$<
+	$(Q)$(AS) $(ALL_ASFLAGS) -o $$@ $$<
 endef
 
 $(foreach EXT, $(EXT_AS), $(eval $(call RULES_AS,$(EXT))))
@@ -229,12 +246,12 @@ DEBUG_SYMBOL		:= $(CDB_FILE)
 %.hex: %.ihx
 	@echo
 	@echo $(MSG_FLASH) "Intel"
-	srec_cat $< -Intel -o $@ -Intel
+	$(Q)srec_cat $< -Intel -o $@ -Intel
 
 $(IHX_FILE): $(COBJS) $(AOBJS) | $(BINDIR)
 	@echo
 	@echo $(MSG_LINKING) $@
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 
 output: hex
 
@@ -246,8 +263,8 @@ clean: clean_list
 clean_list:
 	@echo
 	@echo $(MSG_CLEANING)
-	$(REMOVE) $(BINDIR)
-	$(REMOVE) $(OBJDIR)
+	$(Q)$(REMOVE) $(BINDIR)
+	$(Q)$(REMOVE) $(OBJDIR)
 
 # Listing of phony targets.
 .PHONY: all sizebefore sizeafter sdccversion \

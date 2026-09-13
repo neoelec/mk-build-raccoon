@@ -13,7 +13,7 @@ $$(AOBJS_$(1)): $(OBJDIR)/%.o : %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_ASSEMBLING) $$<
 	@mkdir -p $$(dir $$@)
-	$(CC) -c -MMD -MP -MF$$(@:.o=.d) -MT$$@ $(ALL_ASFLAGS) $$< -o $$@
+	$(Q)$(CC) -c -MMD -MP -MF$$(@:.o=.d) -MT$$@ $(ALL_ASFLAGS) $$< -o $$@
 endef
 
 $(foreach EXT, $(EXT_AS), $(eval $(call RULES_AS,$(EXT))))

@@ -73,7 +73,7 @@ LDFLAGS			+= -Wl,--start-group -lc -lm -Wl,--end-group
 include $(GCC_AT91_MK_DIR)/mk/base_cc.mk
 
 ifneq ($(strip $(CHIP)),)
-JLINK_CHIP		:= $(shell echo $(CHIP) | tr a-z A-Z)
+JLINK_CHIP		:= $(call uc,$(CHIP))
 JFLASH_PRJ		:= $(GCC_AT91_MK_DIR)/mk/at91/jflash/$(CHIP).jflash
 endif
 

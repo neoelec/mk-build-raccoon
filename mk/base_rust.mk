@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-BASE_RUST_MK_FILE	:= $(realpath $(lastword $(MAKEFILE_LIST)))
-BASE_RUST_MK_DIR	:= $(shell dirname $(BASE_RUST_MK_FILE))
+BASE_RUST_MK_FILE	:= $(abspath $(lastword $(MAKEFILE_LIST)))
+BASE_RUST_MK_DIR	:= $(patsubst %/,%,$(dir $(BASE_RUST_MK_FILE)))
 
 CARGO			?= cargo
 

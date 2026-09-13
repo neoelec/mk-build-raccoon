@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-PAULMON_MK_FILE			:= $(realpath $(lastword $(MAKEFILE_LIST)))
-PAULMON_MK_DIR			:= $(shell dirname $(PAULMON_MK_FILE))
+PAULMON_MK_FILE	:= $(abspath $(lastword $(MAKEFILE_LIST)))
+PAULMON_MK_DIR		:= $(patsubst %/,%,$(dir $(PAULMON_MK_FILE)))
 
 # Define TTY Device.
 TTY_DEV				?= /dev/ttyUSB0

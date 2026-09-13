@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-INODBG_MK_FILE		:= $(realpath $(lastword $(MAKEFILE_LIST)))
-INODBG_MK_DIR		:= $(shell dirname $(INODBG_MK_FILE))
+INODBG_MK_FILE		:= $(abspath $(lastword $(MAKEFILE_LIST)))
+INODBG_MK_DIR		:= $(patsubst %/,%,$(dir $(INODBG_MK_FILE)))
 
 TRACE32_MODE		:= arduino
 

@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-2.0+
 # Copyright (c) 2024 YOUNGJIN JOO (neoelec@gmail.com)
 
-BASE_PUML_MK_FILE	:= $(realpath $(lastword $(MAKEFILE_LIST)))
-BASE_PUML_MK_DIR	:= $(shell dirname $(BASE_PUML_MK_FILE))
+BASE_PUML_MK_FILE	:= $(abspath $(lastword $(MAKEFILE_LIST)))
+BASE_PUML_MK_DIR	:= $(patsubst %/,%,$(dir $(BASE_PUML_MK_FILE)))
 
 PLANTUML_JAR		?= $(BASE_PUML_MK_DIR)/plantuml.jar
 

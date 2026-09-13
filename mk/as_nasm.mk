@@ -53,7 +53,7 @@ NASMOPT			?= x
 NASMFLAGS		+= -g -F $(NASMDEBUG)
 NASMFLAGS		+= -f $(NASMFMT)
 NASMFLAGS		+= -O$(NASMOPT) -Ov
-NASMFLAGS		+= $(patsubst %,-I%,$(EXTRAINCDIRS))
+NASMFLAGS		+= $(if $(ALL_INCLUDES),$(ALL_INCLUDES),$(patsubst %,-I%,$(EXTRAINCDIRS)))
 
 ifeq ($(origin NASM),default)
 NASM			:= nasm
@@ -77,7 +77,7 @@ $$(AOBJS_$(1)): $(OBJDIR)/%.o : %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_ASSEMBLING) $$<
 	@mkdir -p $$(dir $$@)
-	$(NASM) $(ALL_NASMFLAGS) -l $$(@:.o=.lst) -o $$@ $$<
+	$(Q)$(NASM) $(ALL_NASMFLAGS) -l $$(@:.o=.lst) -o $$@ $$<
 endef
 
 $(foreach EXT, $(EXT_AS), $(eval $(call RULES_NASM,$(EXT))))

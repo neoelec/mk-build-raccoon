@@ -23,12 +23,12 @@ eep: $(EEP_FILE)
 	@echo
 	@echo $(MSG_FLASH) $@
 	@mkdir -p $(dir $@)
-	$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
+	$(Q)$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
 
 %.eep: %.elf
 	@echo
 	@echo $(MSG_EEPROM) $@
 	@mkdir -p $(dir $@)
-	$(OBJCOPY) -j .eeprom --set-section-flags .eeprom=alloc,load --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
+	$(Q)$(OBJCOPY) -j .eeprom --set-section-flags .eeprom=alloc,load --change-section-lma .eeprom=0 -O $(FORMAT) $< $@
 
 .PHONY: hex eep

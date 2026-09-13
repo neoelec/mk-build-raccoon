@@ -27,15 +27,15 @@ $(STATIC_LIBRARY): $(AOBJS) $(CXXOBJS) $(COBJS) | $(BINDIR)
 	@echo
 	@echo $(MSG_ARCHIVING) $@
 	@mkdir -p $(dir $@)
-	$(AR) rcs $@ $^
+	$(Q)$(AR) rcs $@ $^
 
 $(DYNAMIC_LIBRARY): $(AOBJS) $(CXXOBJS) $(COBJS) | $(BINDIR)
 	@echo
 	@echo $(MSG_LINKING) $@
 	@mkdir -p $(dir $@)
-	$(LD) -shared -fPIC -Wl,-soname,$(TARGET).so.$(VERSION) -o $@ $^
-	ln -fs $(notdir $@) $(dir $@)$(notdir $(TARGET)).so.$(VERSION)
-	ln -fs $(notdir $@) $(dir $@)$(notdir $(TARGET)).so
+	$(Q)$(LD) -shared -fPIC -Wl,-soname,$(TARGET).so.$(VERSION) -o $@ $^
+	$(Q)ln -fs $(notdir $@) $(dir $@)$(notdir $(TARGET)).so.$(VERSION)
+	$(Q)ln -fs $(notdir $@) $(dir $@)$(notdir $(TARGET)).so
 
 # Listing of phony targets.
 .PHONY: output library

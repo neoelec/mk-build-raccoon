@@ -4,6 +4,8 @@
 BASE_CC_MK_FILE		:= $(abspath $(lastword $(MAKEFILE_LIST)))
 BASE_CC_MK_DIR		:= $(patsubst %/,%,$(dir $(BASE_CC_MK_FILE)))
 
+include $(BASE_CC_MK_DIR)/utils.mk
+
 # Cross compile
 CROSS_COMPILE		?=
 
@@ -52,7 +54,8 @@ CXXSRCS			?=
 # List Assembler source files here.
 ASRCS			?=
 
-# List any extra directories to look for include files here.
+# List include directories here (ChibiOS / Kbuild style: INCDIRS and EXTRAINCDIRS supported).
+INCDIRS			?=
 EXTRAINCDIRS		?=
 
 # Place -D or -U options here
@@ -61,12 +64,20 @@ CDEFS			?=
 # Place -I options here
 CINCS			?=
 
+# Deduplicate include directories and source files (preserving order)
+ALL_INCDIRS		:= $(call uniq,$(INCDIRS) $(EXTRAINCDIRS))
+ALL_INCLUDES		:= $(patsubst %,-I%,$(ALL_INCDIRS))
+CSRCS			:= $(call uniq,$(CSRCS))
+CXXSRCS			:= $(call uniq,$(CXXSRCS))
+ASRCS			:= $(call uniq,$(ASRCS))
+VPATH			:= $(call uniq,$(VPATH))
+
 #---------------- C Preprocessor Options ----------------
 CPPFLAGS		+= -Wall
 CPPFLAGS		+= -g$(DEBUG)
 CPPFLAGS		+= $(CDEFS) $(CINCS)
 CPPFLAGS		+= -O$(OPT)
-CPPFLAGS		+= $(patsubst %,-I%,$(EXTRAINCDIRS))
+CPPFLAGS		+= $(ALL_INCLUDES)
 
 #---------------- Compiler Options ----------------
 CFLAGS			+= $(CSTANDARD)
@@ -125,6 +136,13 @@ ALL_CXXFLAGS		:= $(CPPFLAGS) $(CXXFLAGS)
 ALL_ASFLAGS		:= $(CPPFLAGS) $(ASFLAGS)
 ALL_LDFLAGS		:= $(CPPFLAGS) $(LDFLAGS)
 
+# Validate mandatory TARGET variable (except for clean targets)
+ifeq ($(filter clean% %clean,$(MAKECMDGOALS)),)
+  ifeq ($(strip $(TARGET)),)
+    $(call assert-not-empty,TARGET,Target name without extension)
+  endif
+endif
+
 # Default target.
 all: build
 
@@ -168,7 +186,7 @@ $$(COBJS_$(1)): $(OBJDIR)/%.o : %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_COMPILING) $$<
 	@mkdir -p $$(dir $$@)
-	$(CC) -c -MMD -MP -MF$$(@:.o=.d) -MT$$@ $(ALL_CFLAGS) $$< -o $$@
+	$(Q)$(CC) -c -MMD -MP -MF$$(@:.o=.d) -MT$$@ $(ALL_CFLAGS) $$< -o $$@
 endef
 
 $(foreach EXT, $(EXT_CC), $(eval $(call RULES_CC,$(EXT))))
@@ -182,7 +200,7 @@ $$(CXXOBJS_$(1)): $(OBJDIR)/%.o : %.$(1) | $(OBJDIR)
 	@echo
 	@echo $(MSG_COMPILING) $$<
 	@mkdir -p $$(dir $$@)
-	$(CXX) -c -MMD -MP -MF$$(@:.o=.d) -MT$$@ $(ALL_CXXFLAGS) $$< -o $$@
+	$(Q)$(CXX) -c -MMD -MP -MF$$(@:.o=.d) -MT$$@ $(ALL_CXXFLAGS) $$< -o $$@
 endef
 
 $(foreach EXT, $(EXT_CXX), $(eval $(call RULES_CXX,$(EXT))))
@@ -200,8 +218,8 @@ clean: clean_list
 clean_list:
 	@echo
 	@echo $(MSG_CLEANING)
-	$(REMOVE) $(OBJDIR)
-	$(REMOVE) $(BINDIR)
+	$(Q)$(REMOVE) $(OBJDIR)
+	$(Q)$(REMOVE) $(BINDIR)
 
 # Listing of phony targets.
 .PHONY: all sizebefore sizeafter ccversion \

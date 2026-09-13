@@ -21,21 +21,21 @@ sym: $(SYM_FILE)
 	@echo
 	@echo $(MSG_EXTENDED_LISTING) $@
 	@mkdir -p $(dir $@)
-	$(OBJDUMP) -h -S $< > $@
+	$(Q)$(OBJDUMP) -h -S $< > $@
 
 # Create a symbol table from ELF output file.
 %.sym: %.elf
 	@echo
 	@echo $(MSG_SYMBOL_TABLE) $@
 	@mkdir -p $(dir $@)
-	$(NM) -n $< > $@
+	$(Q)$(NM) -n $< > $@
 
 # Link: create ELF output file from object files.
 $(ELF_FILE): $(AOBJS) $(CXXOBJS) $(COBJS) | $(BINDIR)
 	@echo
 	@echo $(MSG_LINKING) $@
 	@mkdir -p $(dir $@)
-	$(LD) $^ -o $@ $(ALL_LDFLAGS)
+	$(Q)$(LD) $^ -o $@ $(ALL_LDFLAGS)
 
 # Listing of phony targets.
 .PHONY: output elf lss sym

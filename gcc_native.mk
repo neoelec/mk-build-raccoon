@@ -11,8 +11,8 @@ all: $(OUTPUT)
 
 $(OUTPUT): $(ELF_FILE)
 	@mkdir -p $(dir $@)
-	@$(COPY) $< $@
-	@$(STRIP) $@
+	$(Q)$(COPY) $< $@
+	$(Q)$(STRIP) $@
 
 run: $(OUTPUT)
 	$< $(TESTFLAGS)
@@ -20,6 +20,8 @@ run: $(OUTPUT)
 clean: clean_native
 
 clean_native:
-	$(REMOVE) $(OUTPUT)
+ifneq ($(strip $(OUTPUT)),)
+	$(Q)$(REMOVE) $(OUTPUT)
+endif
 
 .PHONY: all run clean clean_native
