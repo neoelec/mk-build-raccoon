@@ -29,10 +29,10 @@ endif
 uniq = $(strip $(if $(1),$(firstword $(1)) $(call uniq,$(filter-out $(firstword $(1)),$(1)))))
 
 # Assert condition: $(call assert,condition,error message)
-assert = $(if $(1),,$(error [mk-raccoon] Assertion failed: $(2)))
+assert = $(if $(1),,$(error [mk-build-raccoon] Assertion failed: $(2)))
 
 # Assert variable is not empty: $(call assert-not-empty,VARIABLE_NAME,Description)
-assert-not-empty = $(if $(strip $($(1))),,$(error [mk-raccoon] Variable '$(1)' must not be empty$(if $(2), ($(2)))))
+assert-not-empty = $(if $(strip $($(1))),,$(error [mk-build-raccoon] Variable '$(1)' must not be empty$(if $(2), ($(2)))))
 
 # Fast pure-Make uppercase conversion (zero parse-time subshells)
 # Usage: $(call uc,string)
